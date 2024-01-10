@@ -147,6 +147,8 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
 
         metadataNotifier = new MetadataNotifier(startPaused);
         metadataNotifier.start();
+
+        if (startPaused) sendOneFrame(); // so we see frame 1 upon load
     }
 
     void sendOneFrame() {

@@ -216,7 +216,13 @@ public class MisbViewer extends JFrame implements ActionListener {
                     .setInvalidFieldEncodingStrategy(new LogOnInvalidDataStrategy());
             InvalidDataHandler.getInstance()
                     .setInvalidChecksumStrategy(new LogOnInvalidDataStrategy());
-            IVideoFileInput fileInput = new VideoFileInput(new VideoFileInputOptions());
+            VideoFileInputOptions options =
+                    new VideoFileInputOptions(
+                            /*decodeAudio=*/ true,
+                            /*decodeMetadata=*/ true,
+                            /*decodeVideo=*/ true,
+                            /*initiallyPaused=*/ true);
+            IVideoFileInput fileInput = new VideoFileInput(options);
             fileInput.open(filename);
 
             setTitle("jmisb - " + filename);
