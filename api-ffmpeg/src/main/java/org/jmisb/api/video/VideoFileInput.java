@@ -30,8 +30,9 @@ public class VideoFileInput extends VideoInput implements IVideoFileInput {
     private final Set<IFileEventListener> fileEventListeners = new HashSet<>();
     private boolean open = false;
     private boolean playing = false;
-    private double position = 0.0;
-    private double duration = 0.0;
+    private double startTime = 0.0; // seconds
+    private double position = 0.0; // seconds
+    private double duration = 0.0; // seconds
     private int numFrames = 0;
 
     private double rateMultiplier = 1.0;
@@ -86,6 +87,7 @@ public class VideoFileInput extends VideoInput implements IVideoFileInput {
         AVStream videoStream = FfmpegUtils.getVideoStream(formatContext);
 
         duration = FfmpegUtils.getDuration(formatContext);
+        startTime = FfmpegUtils.getStartTime(formatContext);
 
         // Require a valid video stream
         if (videoStream == null) {
@@ -209,13 +211,18 @@ public class VideoFileInput extends VideoInput implements IVideoFileInput {
     }
 
     @Override
+    public double getStartTime() {
+        return startTime; // files often start at non-zero PTS
+    }
+
+    @Override
     public double getPosition() {
         return position;
     }
 
     @Override
     public void seek(double pos) {
-        if (pos < 0 || pos > getDuration()) {
+        if (pos < startTime || pos > startTime + getDuration()) {
             throw new IllegalArgumentException("Invalid position");
         }
 

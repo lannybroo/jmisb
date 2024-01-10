@@ -37,8 +37,7 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
             addMouseMotionListener(this);
 
             // When the user clicks in the slider track, change the behavior so it jumps to the
-            // clicked
-            // spot. This is done in the L&F.
+            // clicked spot. This is done in the L&F.
             //
             setUI(
                     new BasicSliderUI(seekSlider) {
@@ -68,9 +67,10 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
         @Override
         public void mouseReleased(MouseEvent e) {
             if (videoFileInput != null && videoFileInput.isOpen()) {
-                double position = getValue() / 1000.0;
-
-                videoFileInput.seek(position);
+                double offsetSec = getValue() / 1000.0;
+                double positionSec = videoFileInput.getStartTime() + offsetSec;
+                logger.debug("Seeking position to " + positionSec + " sec");
+                videoFileInput.seek(positionSec);
                 if (wasPlaying && !videoFileInput.isPlaying()) {
                     videoFileInput.play();
                 }
@@ -193,9 +193,13 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
         // Need to update Swing on the EDT
         SwingUtilities.invokeLater(
                 () -> {
-                    int position = (int) Math.round(videoFileInput.getPosition() * 1000);
+                    double positionSec = videoFileInput.getPosition();
+                    double offsetSec = positionSec - videoFileInput.getStartTime();
+                    int offsetMs = (int) Math.round(offsetSec * 1000);
+                    logger.debug(
+                            "Playing at " + positionSec + " sec at offset " + offsetSec + " sec");
                     if (!seekSlider.getValueIsAdjusting()) {
-                        seekSlider.setValue(position);
+                        seekSlider.setValue(offsetMs);
                     }
                     updateButtons();
                 });

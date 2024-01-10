@@ -38,6 +38,13 @@ public interface IVideoFileInput extends IVideoInput {
     double getDuration();
 
     /**
+     * Get the video file start time.
+     *
+     * @return The start time, in seconds
+     */
+    double getStartTime();
+
+    /**
      * Get the current playback position.
      *
      * @return The current position, in seconds
