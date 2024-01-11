@@ -17,12 +17,14 @@ import org.slf4j.LoggerFactory;
 public class PlaybackControlPanel extends JPanel implements IVideoListener {
     private static Logger logger = LoggerFactory.getLogger(PlaybackControlPanel.class);
     private JButton playPauseButton;
+    private JButton nextFrameButton;
     private JButton fastForwardButton;
     private JSlider seekSlider;
 
     private IVideoFileInput videoFileInput;
 
     private ImageIcon playIcon;
+    private ImageIcon nextFrameIcon;
     private ImageIcon pauseIcon;
     private ImageIcon ffOnIcon;
     private ImageIcon ffOffIcon;
@@ -116,6 +118,14 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
                                 .getImage()
                                 .getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH));
 
+        ImageIcon origNextFrameIcon =
+                new ImageIcon(PlaybackControlPanel.class.getResource("/icons/next-frame.png"));
+        nextFrameIcon =
+                new ImageIcon(
+                        origNextFrameIcon
+                                .getImage()
+                                .getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH));
+
         ImageIcon origFfOffIcon =
                 new ImageIcon(
                         PlaybackControlPanel.class.getResource("/icons/fast-forward-off.png"));
@@ -140,6 +150,17 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
                     updateButtons();
                 });
 
+        // Next frame button
+        nextFrameButton = new JButton(nextFrameIcon);
+        nextFrameButton.setEnabled(false);
+        nextFrameButton.addActionListener(
+                l -> {
+                    if (videoFileInput != null && !videoFileInput.isPlaying()) {
+                        videoFileInput.sendOneFrame();
+                    }
+                    updateButtons();
+                });
+
         // Fast forward button
         fastForwardButton = new JButton(ffOffIcon);
         fastForwardButton.setEnabled(false);
@@ -160,9 +181,10 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
         seekSlider.setValue(0);
         seekSlider.setEnabled(false);
 
-        setLayout(new MigLayout("fill", "[48:48:48]0[48:48:48][]", ""));
+        setLayout(new MigLayout("fill", "[48:48:48]0[48:48:48]0[48:48:48][]", ""));
 
         add(playPauseButton, "w 40!");
+        add(nextFrameButton, "w 40!");
         add(fastForwardButton, "w 40!");
         add(seekSlider, "growx, aligny center");
     }
@@ -209,6 +231,10 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
         if (videoFileInput == null) {
             playPauseButton.setEnabled(false);
             fastForwardButton.setEnabled(false);
+            nextFrameButton.setEnabled(false);
+        } else {
+            nextFrameButton.setEnabled(!videoFileInput.isPlaying());
+            nextFrameButton.setToolTipText("Next Frame");
         }
 
         if (videoFileInput == null || !videoFileInput.isPlaying()) {

@@ -81,4 +81,7 @@ public interface IVideoFileInput extends IVideoInput {
 
     /** Notify consumers that end of file has been reached. */
     void notifyEOF();
+
+    /** Send a single frame of video and metadata. */
+    void sendOneFrame();
 }
