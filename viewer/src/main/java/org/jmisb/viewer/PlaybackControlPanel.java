@@ -1,6 +1,8 @@
 package org.jmisb.viewer;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -136,30 +138,47 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
                                 .getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH));
 
         // Play/pause button
+        Action doPlayPause =
+                new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (videoFileInput != null) {
+                            if (videoFileInput.isPlaying()) {
+                                videoFileInput.pause();
+                            } else {
+                                videoFileInput.play();
+                            }
+                        }
+                        updateButtons();
+                    }
+                };
         playPauseButton = new JButton(playIcon);
         playPauseButton.setEnabled(false);
-        playPauseButton.addActionListener(
-                l -> {
-                    if (videoFileInput != null) {
-                        if (videoFileInput.isPlaying()) {
-                            videoFileInput.pause();
-                        } else {
-                            videoFileInput.play();
-                        }
-                    }
-                    updateButtons();
-                });
+        playPauseButton.addActionListener(doPlayPause);
+        playPauseButton
+                .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, 0), "playPause");
+        playPauseButton.getActionMap().put("playPause", doPlayPause);
 
         // Next frame button
+        Action goNextFrame =
+                new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (videoFileInput != null && !videoFileInput.isPlaying()) {
+                            videoFileInput.sendOneFrame();
+                        }
+                        updateButtons();
+                    }
+                };
         nextFrameButton = new JButton(nextFrameIcon);
         nextFrameButton.setEnabled(false);
-        nextFrameButton.addActionListener(
-                l -> {
-                    if (videoFileInput != null && !videoFileInput.isPlaying()) {
-                        videoFileInput.sendOneFrame();
-                    }
-                    updateButtons();
-                });
+        nextFrameButton.addActionListener(goNextFrame);
+        nextFrameButton
+                .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextFrame");
+        nextFrameButton.getActionMap().put("nextFrame", goNextFrame);
+        // TODO: unreliable .. maybe slider is eating these events too?
 
         // Fast forward button
         fastForwardButton = new JButton(ffOffIcon);
@@ -234,12 +253,12 @@ public class PlaybackControlPanel extends JPanel implements IVideoListener {
             nextFrameButton.setEnabled(false);
         } else {
             nextFrameButton.setEnabled(!videoFileInput.isPlaying());
-            nextFrameButton.setToolTipText("Next Frame");
+            nextFrameButton.setToolTipText("Next Frame (→)");
         }
 
         if (videoFileInput == null || !videoFileInput.isPlaying()) {
             playPauseButton.setIcon(playIcon);
-            playPauseButton.setToolTipText("Play");
+            playPauseButton.setToolTipText("Play (\\)");
             fastForwardButton.setEnabled(false);
         } else {
             playPauseButton.setIcon(pauseIcon);
