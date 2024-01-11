@@ -64,6 +64,7 @@ public class MisbViewer extends JFrame implements ActionListener {
         JMenuItem openFile = new JMenuItem("Open File...", KeyEvent.VK_O);
         openFile.setName("File|OpenFile");
         openFile.addActionListener(this);
+        openFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.META_MASK));
         fileMenu.add(openFile);
 
         JMenuItem openUrl = new JMenuItem("Open URL...", KeyEvent.VK_U);
@@ -100,6 +101,7 @@ public class MisbViewer extends JFrame implements ActionListener {
         JCheckBoxMenuItem metadataOverlay = new JCheckBoxMenuItem("Metadata Overlay (ST 1909)");
         metadataOverlay.setName("View|MetadataOverlay");
         metadataOverlay.setMnemonic(KeyEvent.VK_O);
+        metadataOverlay.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK));
         metadataOverlay.addActionListener(this);
         viewMenu.add(metadataOverlay);
 
