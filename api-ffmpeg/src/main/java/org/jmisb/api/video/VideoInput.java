@@ -152,8 +152,8 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
     }
 
     public void sendOneFrame() {
-        videoNotifier.frame();
         metadataNotifier.frame();
+        videoNotifier.frame();
     }
 
     void stopNotifiers() {

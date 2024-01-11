@@ -290,7 +290,7 @@ public class VideoFileInput extends VideoInput implements IVideoFileInput {
 
         if (options.isDecodeVideo()) {
             // Just sync to the video based on PTS
-            while (pts > prevVideoPts) {
+            while (pts > position) {
                 Thread.sleep(10);
             }
         }
