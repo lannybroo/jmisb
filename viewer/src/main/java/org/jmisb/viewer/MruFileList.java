@@ -7,7 +7,7 @@ import javax.swing.*;
 
 /** Stores most-recently-used files */
 class MruFileList {
-    private static int MAX_ENTRIES = 4;
+    private static int MAX_ENTRIES = 10;
 
     private MruFileList() {}
 
