@@ -153,6 +153,7 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
 
     void sendOneFrame() {
         videoNotifier.frame();
+        metadataNotifier.frame();
     }
 
     void stopNotifiers() {
@@ -200,7 +201,8 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
 
                         if (frame != null) {
                             if (getOneFrame)
-                                logger.debug("Got one frame from queue, pts = " + frame.getPts());
+                                logger.debug(
+                                        "Got one video frame from queue, pts = " + frame.getPts());
 
                             // Sleep if we are trying to control playback rate
                             delayVideo(frame.getPts());
@@ -236,6 +238,7 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
     protected class MetadataNotifier extends Thread {
         private volatile boolean shutdown = false;
         private boolean paused;
+        private boolean getOneFrame = false;
 
         MetadataNotifier(boolean paused) {
             this.paused = paused;
@@ -246,7 +249,7 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
             Thread.currentThread().setName("MetadataNotifier - " + getUrl());
 
             while (!shutdown) {
-                while (!shutdown && paused) {
+                while (!shutdown && paused && !getOneFrame) {
                     shortWait(50);
                 }
 
@@ -255,11 +258,16 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
                         MetadataFrame frame = decodedMetadata.poll(50, TimeUnit.MILLISECONDS);
 
                         if (frame != null) {
+                            if (getOneFrame)
+                                logger.debug(
+                                        "Got one meta frame from queue, pts = " + frame.getPts());
+
                             // Sleep if we are trying to control playback rate
                             delayMetadata(frame.getPts());
 
                             metadataListeners.forEach(
                                     listener -> listener.onMetadataReceived(frame));
+                            getOneFrame = false;
                         }
                     } catch (InterruptedException ignored) {
                     }
@@ -278,6 +286,10 @@ public abstract class VideoInput extends VideoIO implements IVideoInput {
 
         protected void resumeOutput() {
             paused = false;
+        }
+
+        protected void frame() {
+            getOneFrame = true;
         }
     }
 
